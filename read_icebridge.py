@@ -81,6 +81,52 @@ def plot_icebridge_scatter(xpts, ypts, thickness, year):
 
 	savefig('/Users/apetty/NOAA/FIGURES/ICEBRIDGE/icebridge_data'+year+'scatter.png', dpi=300)
 
+def read_icebridgeALL(year, mask_hi=1, mask_nonarctic=1):
+	lats_total=[] 
+	lons_total=[]
+	thickness_total=[]
+	snow_thickness_total=[]
+	if (year>2013):
+		files = glob(rawdatapath+'/ICEBRIDGE/ICEBRIDGE_HI/QLOOK/'+str(year)+'*/*.txt')
+	else:
+		files = glob(rawdatapath+'/ICEBRIDGE/ICEBRIDGE_HI/IDCSI4/'+str(year)+'.*/*.txt')
+	
+	for x in xrange(size(files)):
+		data = genfromtxt(files[x], delimiter=',', skip_header=1, dtype=str)
+		# data is a table-like structure (a numpy recarray) in which you can access columns and rows easily
+		lats = data[:, 0].astype(float)
+		lons = data[:, 1].astype(float)
+		thickness = data[:, 2].astype(float)
+		snow_thickness = data[:, 7].astype(float)
+		lats_total.extend(lats)
+		lons_total.extend(lons)
+		thickness_total.extend(thickness)
+		snow_thickness_total.extend(snow_thickness)
+
+	thickness_total=array(thickness_total)
+	snow_thickness_total=array(snow_thickness_total)
+	lats_total=array(lats_total)
+	lons_total=array(lons_total)
+
+	if (mask_hi==1):
+		good_data=where((thickness_total>=0.)&(thickness_total<=20.))
+		thickness_total = thickness_total[good_data]
+		snow_thickness_total=snow_thickness_total[good_data]
+		lats_total = lats_total[good_data]
+		lons_total = lons_total[good_data]
+	if (mask_nonarctic==1):
+		xptsIB, yptsIB = mplot(lons_total, lats_total)
+		region_maskR = griddata((xptsM.flatten(), yptsM.flatten()),region_mask.flatten(), (xptsIB, yptsIB), method='nearest')
+		good_data = where((region_maskR==8))
+		lats_total = lats_total[good_data]
+		lons_total=lons_total[good_data]
+		thickness_total=thickness_total[good_data]
+		snow_thickness_total=snow_thickness_total[good_data]
+
+	xpts,ypts = mplot(lons_total, lats_total)
+
+	return xpts,ypts, lats_total, lons_total, thickness_total, snow_thickness_total
+
 def read_icebridge(filepath, var_num):
 
 	
@@ -106,7 +152,8 @@ mpl.rc("xtick",labelsize=10)
 rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
 #mpl.rc('text', usetex=True)
 
-m = Basemap(projection='npstere',boundinglat=66,lon_0=0, resolution='l'  )
+#m = Basemap(projection='npstere',boundinglat=66,lon_0=0, resolution='l'  )
+m=Basemap(projection='stere', lat_0=74, lon_0=-90,llcrnrlon=-150, llcrnrlat=58,urcrnrlon=10, urcrnrlat=72)
 
 for x in xrange(2010, 2011):
 	year = str(x)
@@ -143,7 +190,9 @@ for x in xrange(2010, 2011):
 	#xpts=xpts[where(~isnan(thickness_total))]
 	#ypts=ypts[where(~isnan(thickness_total))]
 
-	plot_icebridge(xpts, ypts, thickness_total, year)
+
+
+plot_icebridge(xpts, ypts, thickness_total, year)
 	plot_icebridge_scatter(xpts, ypts, thickness_total, year)
 
 #thickness_total=array(thickness_total)

@@ -1278,10 +1278,10 @@ def get_mean_ice_type(mplot, rawdatapath, year, res=1):
 	return ice_type, xpts_type, ypts_type
 
 
-def get_region_mask(mplot):
+def get_region_mask(datapath, mplot):
 	header = 300
 	datatype='uint8'
-	file_mask = '/Volumes/GRAID_NASA/NOAA/DATA/OTHER/region_n.msk'
+	file_mask = datapath+'/OTHER/region_n.msk'
 
 	#8 - Arctic Ocean
 	#9 - Canadian Archipelago
@@ -1293,8 +1293,8 @@ def get_region_mask(mplot):
 	region_mask = fromfile(file=fd, dtype=datatype)
 	region_mask = reshape(region_mask[header:], [448, 304])
 
-	mask_latf = open('/Volumes/GRAID_NASA/NOAA/DATA/ICE_CONC/BOOTSTRAP/psn25lats_v3.dat', 'rb')
-	mask_lonf = open('/Volumes/GRAID_NASA/NOAA/DATA/ICE_CONC/BOOTSTRAP/psn25lons_v3.dat', 'rb')
+	mask_latf = open(datapath+'/OTHER/psn25lats_v3.dat', 'rb')
+	mask_lonf = open(datapath+'/OTHER/psn25lons_v3.dat', 'rb')
 	lats_mask = reshape(fromfile(file=mask_latf, dtype='<i4')/100000., [448, 304])
 	lons_mask = reshape(fromfile(file=mask_lonf, dtype='<i4')/100000., [448, 304])
 
