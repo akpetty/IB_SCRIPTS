@@ -20,18 +20,18 @@ def downscale_POS(wholeFilePath):
 	freq = 1./timeres
 	dataTS=dataT[:,::200]
 
-	utcimeDays  = dataTS[0]/(24*60*60)
-	utcTime     = dataTS[0]-(floor(utcimeDays)*(24*60*60))
+	gpsTimeDays  = dataTS[0]/(24*60*60)
+	gpsTime     = dataTS[0]-(floor(gpsTimeDays)*(24*60*60))
 
 	if (year>2014):
-		utcTime=utcTime-17
+		utcTime=gpsTime-17
 		print 'gps offet = 17s'
 	elif (year>=2012):
-		utcTime=utcTime-16
+		utcTime=gpsTime-16
 		print 'gps offet = 16s'
 	else:
-		utcTime=utcTime-15
-		print 'gps offet = 15s'
+		utcTime=gpsTime
+		print 'gps-utc offset ALREADY APPLIED I THINK?'
 
 
 	data_out = np.zeros((7, dataTS.shape[1]))
@@ -39,16 +39,18 @@ def downscale_POS(wholeFilePath):
 	data_out[1] = np.degrees(dataTS[1])
 	data_out[2] = np.degrees(dataTS[2])
 	data_out[3] = dataTS[3]
-	data_out[4] = dataTS[4]
-	data_out[5] = dataTS[8]
-	data_out[6] = dataTS[7]
+	data_out[4] = sqrt(dataTS[4]**2+dataTS[5]**2)
+	data_out[5] = np.degrees(dataTS[8])
+	data_out[6] = np.degrees(dataTS[7])
+
 
 	savetxt(FilePaths+wholeFilePath[-17:]+'.txt', data_out.T, fmt='%.3f', header='UTCtime (s)  Lat (deg)  Lon (deg)  Alt (m), Vel (m/s) Pitch (deg) Roll (deg)')
 
 
 numCols = 17
-year=2015
-FilePaths='../../DATA/ICEBRIDGE/POSAV/SEA_ICE/AN/2014_AN_NASA/'
+year=2009
+pole ='GR'
+FilePaths='../../../DATA/ICEBRIDGE/POSAV/SEA_ICE/'+pole+'/'+str(year)+'_'+pole+'_NASA/'
 
 files=glob(FilePaths+'*.out')
 for x in xrange(size(files)):
