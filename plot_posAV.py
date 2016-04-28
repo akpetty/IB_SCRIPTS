@@ -88,7 +88,7 @@ for year in xrange(start_year, end_year+1):
 	roll.append(rollT)
 	flines.append(flinesT)
 
-option=4
+option=1
 if (option==1):
 	minval = 200
 	maxval = 800
