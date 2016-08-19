@@ -1287,7 +1287,7 @@ def perceptual_colormap(name, datapath, reverse=0):
     return my_cmap
 
 
-def get_mean_ice_type(mplot, rawdatapath, year, res=1):
+def get_mean_ice_type(mplot, rawdatapath, year, res=1, extrapolate=1):
 	ice_type_path = rawdatapath+'/ICETYPE/OSISAF/GR/'+str(year)+'/'
 	files = glob(ice_type_path+'*.nc')
 	f = Dataset(files[0], 'r')
@@ -1310,16 +1310,16 @@ def get_mean_ice_type(mplot, rawdatapath, year, res=1):
 		ice_typeT = np.where(ice_typeT==4, 0.75, ice_typeT)
 		#set everything else to FY ice
 		#ice_typeT = np.where((ice_typeT==-1), 0.5, ice_typeT)
-
-		#EXTRAPOLATE FIRST YEAR (BC) AND MULTI_YEAR (CA) ALONG THE COAST
-		#assume CA is MY and BC is FY
-		#CA
-		region_lonlatCA = [-150, 10, 81, 85]
-		#BC
-		region_lonlatBC = [-170, -120, 69, 79]
-		ice_typeT = where((ice_typeT==-1)& (lons>region_lonlatBC[0]) & (lons<region_lonlatBC[1]) & (lats>region_lonlatBC[2]) & (lats<region_lonlatBC[3]), 0.5, ice_typeT )
-		ice_typeT = where((ice_typeT==-1)& (lons>region_lonlatCA[0]) & (lons<region_lonlatCA[1]) & (lats>region_lonlatCA[2]) & (lats<region_lonlatCA[3]), 1., ice_typeT )
-		
+		if (extrapolate==1):
+			#EXTRAPOLATE FIRST YEAR (BC) AND MULTI_YEAR (CA) ALONG THE COAST
+			#assume CA is MY and BC is FY
+			#CA
+			region_lonlatCA = [-150, 10, 81, 85]
+			#BC
+			region_lonlatBC = [-170, -120, 69, 79]
+			ice_typeT = where((ice_typeT==-1)& (lons>region_lonlatBC[0]) & (lons<region_lonlatBC[1]) & (lats>region_lonlatBC[2]) & (lats<region_lonlatBC[3]), 0.5, ice_typeT )
+			ice_typeT = where((ice_typeT==-1)& (lons>region_lonlatCA[0]) & (lons<region_lonlatCA[1]) & (lats>region_lonlatCA[2]) & (lats<region_lonlatCA[3]), 1., ice_typeT )
+			
 		ice_type_days.append(ice_typeT)
 	ice_type = mean(ice_type_days, axis=0)
 	return ice_type, xpts_type, ypts_type
@@ -1349,8 +1349,32 @@ def get_region_mask(datapath, mplot):
 
 	return region_mask, xpts, ypts
 
+def calc_kurtz(season, dataPath):
+
+	#summer fall spring
+	#conc_av = np.zeros((316,332))
+	shape = [316, 332]
+	data = loadtxt(dataPath+'/OTHER/'+season+'_ICESat_gridded_mean_thickness.txt')
+	lats = data[:, 0]
+	lons = data[:, 1]
+	ice = data[:, 2]
+	snow = data[:, 3]
+	#total = data[:, 4]
+	
+
+	lats = lats.reshape(shape)
+	lons = lons.reshape(shape)
+	ice = ice.reshape(shape)
+	snow = snow.reshape(shape)
+	#total = total.reshape(shape)
+
+	return lats, lons, ice, snow
+
+
+	
+
 def calc_icebridge_flights(year, rawdatapath, loc):
-    init_path = rawdatapath+'/ICEBRIDGE/POSAV/'+str(year)+'_'+loc+'_NASA/'
+    init_path = rawdatapath+'/ICEBRIDGE/POSAV/SEA_ICE/'+loc+'/'+str(year)+'_'+loc+'_NASA/'
 
     files = glob(init_path+'*.txt')
     lons=[]

@@ -48,9 +48,9 @@ def downscale_POS(wholeFilePath):
 
 
 numCols = 17
-year=2009
+year=2015
 pole ='GR'
-FilePaths='../../../DATA/ICEBRIDGE/POSAV/SEA_ICE/'+pole+'/'+str(year)+'_'+pole+'_NASA/'
+FilePaths='../../../DATA/ICEBRIDGE/POSAV/SEA_ICE/'+pole+'/'+str(year)+'FALL_'+pole+'_NASA/'
 
 files=glob(FilePaths+'*.out')
 for x in xrange(size(files)):
